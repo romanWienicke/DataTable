@@ -34,16 +34,15 @@ namespace DataTableTests
         public async Task EntityFrameworkQueryCacheTest()
         {
             var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "users.json");
+                "users1.json");
 
-            var users = await _context.Users
-                .FromCache(fileName, true);
+            var users = await _context.Users.FromCache(fileName, true);
 
             Assert.IsTrue(File.Exists(fileName));
 
             var users2 = await _context.Users.FromCache(fileName);
 
-            Assert.IsTrue(users2.Count == 2);
+            Assert.IsTrue(users2.Count() == 2);
 
         }
 
@@ -51,7 +50,7 @@ namespace DataTableTests
         public async Task EntityFrameworkQueryCacheWithIncludeTest()
         {
             var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "users.json");
+                "users2.json");
 
             var users = await _context.Users
                 .Include(u => u.Orders)
@@ -61,7 +60,46 @@ namespace DataTableTests
 
             var users2 = await _context.Users.FromCache(fileName);
 
-            Assert.IsTrue(users2.Count == 2);
+            Assert.IsTrue(users2.Count() == 2);
+
+        }
+
+        [Test]
+        public async Task EntityFrameworkQueryCacheWithFind()
+        {
+            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "users3.json");
+
+            var user = await _context.Users
+                .Find(1)
+                .FromCacheSingle(fileName, true);
+                
+
+            //Assert.IsTrue(File.Exists(fileName));
+
+            var user2 = await _context.Users.Find(1).FromCacheSingle(fileName);
+
+            Assert.IsNotNull(user2);
+
+        }
+
+        [Test]
+        public async Task EntityFrameworkQueryCacheWithWhere()
+        {
+            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "users4.json");
+
+            var users = await _context.Users
+                .Where(u => u.Name == "Roman")
+                .Include(u => u.Orders)
+                .FromCache(fileName, true);
+
+
+            Assert.IsTrue(File.Exists(fileName));
+
+            var users2 = await _context.Users.FromCache(fileName);
+
+            Assert.IsTrue(users2.FirstOrDefault().Name == "Roman");
 
         }
     }

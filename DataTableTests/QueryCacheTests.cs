@@ -36,11 +36,11 @@ namespace DataTableTests
             var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "users1.json");
 
-            var users = await _context.Users.FromCache(fileName, true);
+            var users = await _context.Users.FromJson(fileName, true);
 
             Assert.IsTrue(File.Exists(fileName));
 
-            var users2 = await _context.Users.FromCache(fileName);
+            var users2 = await _context.Users.FromJson(fileName);
 
             Assert.IsTrue(users2.Count() == 2);
 
@@ -54,11 +54,11 @@ namespace DataTableTests
 
             var users = await _context.Users
                 .Include(u => u.Orders)
-                .FromCache(fileName, true);
+                .FromJson(fileName, true);
 
             Assert.IsTrue(File.Exists(fileName));
 
-            var users2 = await _context.Users.FromCache(fileName);
+            var users2 = await _context.Users.FromJson(fileName);
 
             Assert.IsTrue(users2.Count() == 2);
 
@@ -72,12 +72,12 @@ namespace DataTableTests
 
             var user = await _context.Users
                 .Find(1)
-                .FromCacheSingle(fileName, true);
+                .FromJsonSingle(fileName, true);
                 
 
             //Assert.IsTrue(File.Exists(fileName));
 
-            var user2 = await _context.Users.Find(1).FromCacheSingle(fileName);
+            var user2 = await _context.Users.Find(1).FromJsonSingle(fileName);
 
             Assert.IsNotNull(user2);
 
@@ -92,15 +92,28 @@ namespace DataTableTests
             var users = await _context.Users
                 .Where(u => u.Name == "Roman")
                 .Include(u => u.Orders)
-                .FromCache(fileName, true);
+                .FromJson(fileName, true);
 
 
             Assert.IsTrue(File.Exists(fileName));
 
-            var users2 = await _context.Users.FromCache(fileName);
+            var users2 = await _context.Users.FromJson(fileName);
 
             Assert.IsTrue(users2.FirstOrDefault().Name == "Roman");
 
+        }
+
+        [Test]
+        public Task EntityFrameworkQueryCacheLazyTest()
+        {
+
+            var user = _context.Users.FirstOrDefault();
+
+            //_context.Entry(user).Collection(u => u.Orders).Load();
+
+            var orders = user.Orders;
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -53,7 +53,7 @@ namespace DataTableTests
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
 
     }
 
@@ -63,7 +63,7 @@ namespace DataTableTests
 
         public int UserId { get; set; }
         
-        public User User { get; set; }
+        public virtual User User { get; set; }
 
 
         public decimal Sum { get; set; }

@@ -53,5 +53,25 @@ namespace Connexion.DataExtensions.Performance
 
             }
         }
+
+        [Benchmark()]
+        public Connexion.DataExtensions.DataTable2 ConnexionDataTable2Test()
+        {
+            var context = new TestDataContext();
+
+            using (var conn = new SqlConnection(context.ConnectionString))
+            {
+                using (var command = new SqlCommand("select * from editor.Infos"))
+                {
+                    command.Connection = conn;
+                    using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(command))
+                    {
+                        return Connexion.DataExtensions.DataTable2.FromSqlCommand(command)
+                            .GetAwaiter().GetResult();
+                    }
+                }
+
+            }
+        }
     }
 }

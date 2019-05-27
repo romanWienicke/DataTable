@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -8,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Connexion.DataExtensions
 {
-    public class DataTable
+    public class DataTable2 : MarshalByValueComponent
     {
         const string NotInitializedExceptionMessage = "Table was not initialized";
 
-        private object[][] _data;
-        public object[][] Data
+        private HashSet<object[]> _data;
+        public HashSet<object[]> Data
         {
             get
             {
@@ -25,19 +26,19 @@ namespace Connexion.DataExtensions
             }
         }
 
-        public DataTable()
+        public DataTable2()
         {
             
-            _data = new object[100][];
+            _data = new HashSet<object[]>();
         }
 
-        public static async Task<DataTable> FromSqlCommand(SqlCommand command)
+        public static async Task<DataTable2> FromSqlCommand(SqlCommand command)
         {
             TryOpenConnection(command);
 
             try
             {
-                DataTable dataTable = new DataTable();
+                var dataTable = new DataTable2();
                 using (var reader = await command.ExecuteReaderAsync())
                 {
                     dataTable.GetData(reader);
@@ -62,24 +63,17 @@ namespace Connexion.DataExtensions
             var columnCount = GetColumns(reader);
 
 
-            int _rowCount = 0;
             if (reader.HasRows)
             {
                 while (reader.Read())
                 {
-                    _data[_rowCount] = new object[columnCount];
+                    var row = new object[columnCount];
                     for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
                     {
-                        
-                        _data[_rowCount][columnIndex] = reader.GetValue(columnIndex);
+                        row[columnIndex] = reader.GetValue(columnIndex);
                         
                     }
-                    _rowCount++;
-                    if (_rowCount % 100 == 0)
-                    {
-                        Array.Resize(ref _data, _data.Length + 100);
-                    }
-
+                    Data.Add(row);
                 }
             }
         }

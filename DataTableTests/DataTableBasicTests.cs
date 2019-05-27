@@ -18,16 +18,20 @@ namespace DataTableTests
         public void Setup()
         {
             _context = new TestDataContext();
+            _context.ConnectionString = @"Data Source=develop,1438;Initial Catalog=KvOnline.20190508;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         }
 
         [OneTimeTearDown]
         public void TearDown()
         {
+            _context.Dispose();
         }
 
         [Test]
         public async Task GetFromDataBaseTest()
         {
+
+
             using (var conn = new SqlConnection(_context.ConnectionString))
             {
                 var command = new SqlCommand("select * from editor.Infos");
